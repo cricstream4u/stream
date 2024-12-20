@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DASH & HLS Player with Plyr</title>
+    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+    <script src="https://cdn.jsdelivr.net/npm/dashjs/dist/dash.all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
+    <style>
+        .video-container {
+            width: 95%;
+            height: auto;
+            position: relative;
+        }
+
+        @media (max-width: 768px) {
+            .video-container {
+                width: 100%;
+            }
+        }
+
+        .plyr--hide-controls {
+            opacity: 1 !important; /* Ensure controls are always visible when active */
+        }
+    </style>
+</head>
+<body>
+    <center>
+        <div class="video-container">
+            <video preload="none" id="video" autoplay controls crossorigin></video>
+        </div>
+    </center>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const videoUrl = urlParams.get('video');
+
+            if (!videoUrl) {
+                document.body.innerHTML = "<h2>Video URL missing in query parameter</h2>";
+                return;
+            }
+
+            const video = document.getElementById('video');
+            const defaultOptions = {
+                controls: [
+                    'play-large',
+                    'play',
+                    'progress',
+                    'duration',
+                    'mute',
+                    'settings',
+                    'pip',
+                    'airplay',
+                    'fullscreen',
+                ],
+                settings: ['quality'],
+            };
+
+            let player;
+
+            if (videoUrl.endsWith('.mpd')) {
+                const dashPlayer = dashjs.MediaPlayer().create();
+                dashPlayer.initialize(video, videoUrl, true);
+
+                dashPlayer.on(dashjs.MediaPlayer.events.STREAM_INITIALIZED, () => {
+                    const bitrates = dashPlayer.getBitrateInfoListFor("video").map(b => b.height);
+
+                    // Add quality options to Plyr
+                    defaultOptions.quality = {
+                        default: 0,
+                        options: [0, ...bitrates],
+                        forced: true,
+                        onChange: (newQuality) => {
+                            if (newQuality === 0) {
+                                dashPlayer.setAutoSwitchQualityFor("video", true);
+                            } else {
+                                dashPlayer.setAutoSwitchQualityFor("video", false);
+                                const index = dashPlayer.getBitrateInfoListFor("video").findIndex(b => b.height === newQuality);
+                                dashPlayer.setQualityFor("video", index);
+                            }
+                        },
+                    };
+
+                    player = new Plyr(video, defaultOptions);
+
+                    // Attach fullscreen orientation handler
+                    attachFullscreenOrientationHandler(player);
+
+                    // Ensure controls appear on hover and click
+                    ensureControlsVisibility(player);
+                });
+            } else if (Hls.isSupported() && videoUrl.endsWith('.m3u8')) {
+                const hls = new Hls();
+                hls.loadSource(videoUrl);
+                hls.attachMedia(video);
+
+                hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                    const availableQualities = hls.levels.map(level => level.height);
+
+                    defaultOptions.quality = {
+                        default: 0,
+                        options: [0, ...availableQualities],
+                        forced: true,
+                        onChange: (newQuality) => updateQuality(hls, newQuality),
+                    };
+
+                    player = new Plyr(video, defaultOptions);
+
+                    attachFullscreenOrientationHandler(player);
+                    ensureControlsVisibility(player);
+                });
+            } else if (video.canPlayType('application/vnd.apple.mpegurl') || video.canPlayType('application/dash+xml')) {
+                video.src = videoUrl;
+                player = new Plyr(video, defaultOptions);
+                attachFullscreenOrientationHandler(player);
+                ensureControlsVisibility(player);
+            } else {
+                document.body.innerHTML = "<h2>Neither HLS nor DASH is supported on your browser</h2>";
+            }
+        });
+
+        function updateQuality(hls, newQuality) {
+            if (newQuality === 0) {
+                hls.currentLevel = -1;
+            } else {
+                const index = hls.levels.findIndex(level => level.height === newQuality);
+                if (index !== -1) {
+                    hls.currentLevel = index;
+                }
+            }
+        }
+
+        function attachFullscreenOrientationHandler(player) {
+            player.on('enterfullscreen', () => {
+                if (screen.orientation && screen.orientation.lock) {
+                    screen.orientation.lock('landscape').catch(err => {
+                        console.warn('Failed to lock screen orientation:', err);
+                    });
+                }
+            });
+
+            player.on('exitfullscreen', () => {
+                if (screen.orientation && screen.orientation.unlock) {
+                    screen.orientation.unlock();
+                }
+            });
+        }
+
+        function ensureControlsVisibility(player) {
+            // Force controls to show on click or hover
+            player.on('play', () => {
+                player.elements.container.classList.remove('plyr--hide-controls');
+            });
+
+            player.on('pause', () => {
+                player.elements.container.classList.remove('plyr--hide-controls');
+            });
+
+            player.elements.container.addEventListener('mousemove', () => {
+                player.elements.container.classList.remove('plyr--hide-controls');
+            });
+        }
+    </script>
+  
+
+  
+</body>
+</html>
