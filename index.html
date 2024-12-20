@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plyr with DASH and Multiple Quality Options</title>
+    <title>Plyr with HLS and DASH Support</title>
     <!-- Plyr CSS -->
     <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css">
 </head>
@@ -13,7 +13,9 @@
 
     <!-- Plyr JS -->
     <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
-    <!-- DASH.js -->
+    <!-- HLS.js (for HLS support) -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <!-- DASH.js (for DASH support) -->
     <script src="https://cdn.dashjs.org/latest/dash.all.min.js"></script>
 
     <script>
@@ -21,66 +23,121 @@
         function getURLParams() {
             const urlParams = new URLSearchParams(window.location.search);
             return {
-                videoId: urlParams.get('video'),     // Extract 'video' parameter
-                quality: urlParams.get('quality'),   // Extract 'quality' parameter
+                videoUrl: urlParams.get('video'),   // Extract 'video' parameter (URL)
+                format: urlParams.get('format'),    // Extract 'format' parameter ('hls' or 'dash')
+                quality: urlParams.get('quality')  // Extract 'quality' parameter (for DASH)
             };
         }
 
         // Get the URL parameters
         const params = getURLParams();
-        console.log('Video ID:', params.videoId);  // For debugging
-        console.log('Quality:', params.quality);   // For debugging
+        console.log('Video URL:', params.videoUrl);  // For debugging
+        console.log('Format:', params.format);      // For debugging
+        console.log('Quality:', params.quality);    // For debugging
 
-        // Initialize the video element and the DASH.js player
+        // Initialize the video element and Plyr
         const video = document.getElementById('video-player');
-        const dash = dashjs.MediaPlayer().create();
-
-        // Set the DASH manifest URL dynamically based on the 'video' URL parameter
-        const manifestUrl = params.video ? `https://vkvsd14.okcdn.ru/cmaf/7465941011175/sig/D1esK-EFWhc/srcIp/13.202.136.237/urls/185.226.53.94/expires/1734812039320/clientType/13/srcAg/CHROME/fromCache/1/mid/9161388141543/id/7465941011175/get/dash_9161388141543.yi5Gc1pbmz0.mpd` : 'https://default-dash-url.mpd';
-        
-        // Initialize DASH.js player with the chosen manifest
-        dash.initialize(video, manifestUrl, true);  // The 'true' enables auto-switching between qualities
-
-        // Set up Plyr player
         const player = new Plyr(video);
 
-        // Optional: Sync Plyr and DASH.js for better control
-        video.addEventListener('play', () => dash.play());
-        video.addEventListener('pause', () => dash.pause());
+        // Handle quality switching
+        function handleQualitySwitch(format, qualityIndex) {
+            if (format === 'hls' && Hls.isSupported()) {
+                const hls = new Hls();
+                hls.loadSource(params.videoUrl);  // Load HLS stream URL
+                hls.attachMedia(video);
 
-        // Event to detect quality change
-        dash.on(dashjs.MediaPlayer.events.PERIOD_SWITCHED, function () {
-            const currentQuality = dash.getQualityFor('video');
-            console.log('Current quality level:', currentQuality);
-        });
+                hls.on(Hls.Events.MANIFEST_PARSED, function () {
+                    if (qualityIndex !== undefined) {
+                        hls.startLevel = qualityIndex; // Set quality level
+                        hls.loadSource(params.videoUrl); // Reload stream with quality change
+                    }
+                });
+            } else if (params.format === 'dash') {
+                const dash = dashjs.MediaPlayer().create();
+                dash.initialize(video, params.videoUrl, true);  // Initialize with auto quality switch
 
-        // Optional: Control quality levels manually if needed (e.g., using the 'quality' parameter)
-        if (params.quality) {
-            // Find the quality index based on the 'quality' parameter (e.g., 'low', 'medium', 'high')
-            const availableQualities = dash.getBitrateInfoListFor('video');
-            const qualityIndex = availableQualities.findIndex(q => q.height === parseInt(params.quality, 10));
-            
-            if (qualityIndex !== -1) {
-                dash.setQualityFor('video', qualityIndex);  // Set the desired quality based on the 'quality' param
+                // Optional: Change quality for DASH (based on the 'quality' URL parameter)
+                if (qualityIndex !== undefined) {
+                    dash.setQualityFor('video', qualityIndex); // Set the quality index
+                }
             }
         }
 
-        // Access to available quality levels
-        dash.on(dashjs.MediaPlayer.events.MANIFEST_LOADED, function () {
-            const availableQualities = dash.getBitrateInfoListFor('video');
-            console.log('Available Quality Levels:', availableQualities);
-        });
+        // Check the format (either HLS or DASH)
+        if (params.format === 'hls') {
+            // If format is HLS, use HLS.js for playback
+            if (Hls.isSupported()) {
+                const hls = new Hls();
+                hls.loadSource(params.videoUrl);  // Load HLS stream URL
+                hls.attachMedia(video);
 
-        // Handle errors during DASH playback
-        dash.on(dashjs.MediaPlayer.events.ERROR, function(e) {
-            console.error('DASH.js Error:', e);
-            alert('An error occurred while loading the video.');
-        });
+                hls.on(Hls.Events.MANIFEST_PARSED, function () {
+                    console.log('HLS manifest loaded');
+                    
+                    // Populate quality levels dropdown (HLS)
+                    const qualityLevels = hls.levels;
+                    const qualitySelect = document.createElement('select');
+                    qualityLevels.forEach((level, index) => {
+                        const option = document.createElement('option');
+                        option.value = index;
+                        option.textContent = `Quality ${level.height || level.width}`;
+                        qualitySelect.appendChild(option);
+                    });
+                    qualitySelect.addEventListener('change', (e) => {
+                        const selectedQualityIndex = parseInt(e.target.value);
+                        handleQualitySwitch('hls', selectedQualityIndex);
+                    });
+                    document.body.appendChild(qualitySelect);  // Append dropdown to body
+                });
+            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                // Fallback for browsers that natively support HLS (like Safari)
+                video.src = params.videoUrl;
+            }
+        } else if (params.format === 'dash') {
+            // If format is DASH, use DASH.js for playback
+            const dash = dashjs.MediaPlayer().create();
+            dash.initialize(video, params.videoUrl, true);  // true enables auto-switching between qualities
 
-        // Optional: Handle DASH.js manifest loading
-        dash.on(dashjs.MediaPlayer.events.MANIFEST_LOADED, function() {
-            console.log('Manifest loaded successfully');
-        });
+            // Optional: Populate quality levels dropdown (DASH)
+            dash.on(dashjs.MediaPlayer.events.MANIFEST_LOADED, function() {
+                const availableQualities = dash.getBitrateInfoListFor('video');
+                const qualitySelect = document.createElement('select');
+                availableQualities.forEach((quality, index) => {
+                    const option = document.createElement('option');
+                    option.value = index;
+                    option.textContent = `Quality ${quality.height}p`;
+                    qualitySelect.appendChild(option);
+                });
+                qualitySelect.addEventListener('change', (e) => {
+                    const selectedQualityIndex = parseInt(e.target.value);
+                    dash.setQualityFor('video', selectedQualityIndex);
+                });
+                document.body.appendChild(qualitySelect);  // Append dropdown to body
+            });
+        } else {
+            console.error('Unsupported format. Please provide "hls" or "dash" format.');
+        }
+
+        // Optional: Handle errors for HLS.js
+        if (params.format === 'hls' && Hls.isSupported()) {
+            const hls = new Hls();
+            hls.on(Hls.Events.ERROR, function (event, data) {
+                if (data.fatal) {
+                    console.error('HLS.js error:', data);
+                    alert('An error occurred while loading the video.');
+                }
+            });
+        }
+
+        // Optional: Handle errors for DASH.js
+        if (params.format === 'dash') {
+            const dash = dashjs.MediaPlayer().create();
+            dash.on(dashjs.MediaPlayer.events.ERROR, function (e) {
+                console.error('DASH.js error:', e);
+                alert('An error occurred while loading the video.');
+            });
+        }
+
     </script>
 </body>
 </html>
