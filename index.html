@@ -52,6 +52,11 @@
                         hls.loadSource(params.videoUrl); // Reload stream with quality change
                     }
                 });
+
+                hls.on(Hls.Events.ERROR, function(event, data) {
+                    console.error('HLS.js Error:', data);
+                    alert('An error occurred while loading the HLS stream.');
+                });
             } else if (params.format === 'dash') {
                 const dash = dashjs.MediaPlayer().create();
                 dash.initialize(video, params.videoUrl, true);  // Initialize with auto quality switch
@@ -60,6 +65,11 @@
                 if (qualityIndex !== undefined) {
                     dash.setQualityFor('video', qualityIndex); // Set the quality index
                 }
+
+                dash.on(dashjs.MediaPlayer.events.ERROR, function (e) {
+                    console.error('DASH.js Error:', e);
+                    alert('An error occurred while loading the DASH stream.');
+                });
             }
         }
 
@@ -89,9 +99,16 @@
                     });
                     document.body.appendChild(qualitySelect);  // Append dropdown to body
                 });
+
+                hls.on(Hls.Events.ERROR, function (event, data) {
+                    console.error('HLS.js error:', data);
+                    alert('An error occurred while loading the video.');
+                });
             } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
                 // Fallback for browsers that natively support HLS (like Safari)
                 video.src = params.videoUrl;
+            } else {
+                alert('HLS is not supported in this browser.');
             }
         } else if (params.format === 'dash') {
             // If format is DASH, use DASH.js for playback
@@ -114,30 +131,30 @@
                 });
                 document.body.appendChild(qualitySelect);  // Append dropdown to body
             });
-        } else {
-            console.error('Unsupported format. Please provide "hls" or "dash" format.');
-        }
 
-        // Optional: Handle errors for HLS.js
-        if (params.format === 'hls' && Hls.isSupported()) {
-            const hls = new Hls();
-            hls.on(Hls.Events.ERROR, function (event, data) {
-                if (data.fatal) {
-                    console.error('HLS.js error:', data);
-                    alert('An error occurred while loading the video.');
-                }
-            });
-        }
-
-        // Optional: Handle errors for DASH.js
-        if (params.format === 'dash') {
-            const dash = dashjs.MediaPlayer().create();
             dash.on(dashjs.MediaPlayer.events.ERROR, function (e) {
                 console.error('DASH.js error:', e);
                 alert('An error occurred while loading the video.');
             });
+        } else {
+            console.error('Unsupported format. Please provide "hls" or "dash" format.');
         }
 
     </script>
+
+     <!-- BEGIN: Powered by Supercounters.com -->
+    <center>
+        <script type="text/javascript" src="//widget.supercounters.com/ssl/online_t.js"></script>
+        <script type="text/javascript">sc_online_t(1703448,"Watching....","#1d1d21");</script>
+        <br>
+        <noscript><a href="https://www.supercounters.com/"></a></noscript>
+    </center>
+    <!-- END: Powered by Supercounters.com -->
+
+    <div style="background-color: #0074d9; text-align: center; padding: 10px;">
+        <a href="https://telegram.me/cric_stream" target="_blank">
+            <button id="joinTelegramButton" style="background-color: #fff; color: #0074d9; border: 2px solid #0074d9; padding: 5px 10px;">Join Telegram</button>
+        </a>
+    </div>
 </body>
 </html>
