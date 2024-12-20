@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TG- @cric_stream</title>
+    <title>HLS and DASH Player with Plyr</title>
     <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <script src="https://cdn.dashjs.org/latest/dash.all.min.js"></script>
@@ -121,6 +121,8 @@
                 // Add the player controls and quality settings
                 dash.on(dashjs.MediaPlayer.events.MANIFEST_LOADED, function () {
                     const availableQualities = dash.getBitrateInfoListFor('video').map(info => info.height);
+
+                    // Add the quality options dynamically
                     defaultOptions.quality = {
                         default: 0,
                         options: availableQualities,
@@ -191,12 +193,6 @@
         <a href="https://telegram.me/cric_stream" target="_blank">
             <button id="joinTelegramButton">Join Telegram</button>
         </a>
-    </div>
-    <div>
-        <br>
-        <br>
-        <script async="async" data-cfasync="false" src="//carryglanced.com/2346ffc02acfb9eb4451708a5df9f609/invoke.js"></script>
-        <div id="container-2346ffc02acfb9eb4451708a5df9f609"></div>
     </div>
 </body>
 </html>
