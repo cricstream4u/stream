@@ -36,7 +36,7 @@
         const dash = dashjs.MediaPlayer().create();
 
         // Set the DASH manifest URL dynamically based on the 'video' URL parameter
-        const manifestUrl = params.video ? `https://your-dash-server.com/videos/${params.video}.mpd` : 'https://default-dash-url.mpd';
+        const manifestUrl = params.video ? `https://vkvsd14.okcdn.ru/cmaf/7465941011175/sig/D1esK-EFWhc/srcIp/13.202.136.237/urls/185.226.53.94/expires/1734812039320/clientType/13/srcAg/CHROME/fromCache/1/mid/9161388141543/id/7465941011175/get/dash_9161388141543.yi5Gc1pbmz0.mpd` : 'https://default-dash-url.mpd';
         
         // Initialize DASH.js player with the chosen manifest
         dash.initialize(video, manifestUrl, true);  // The 'true' enables auto-switching between qualities
@@ -69,6 +69,17 @@
         dash.on(dashjs.MediaPlayer.events.MANIFEST_LOADED, function () {
             const availableQualities = dash.getBitrateInfoListFor('video');
             console.log('Available Quality Levels:', availableQualities);
+        });
+
+        // Handle errors during DASH playback
+        dash.on(dashjs.MediaPlayer.events.ERROR, function(e) {
+            console.error('DASH.js Error:', e);
+            alert('An error occurred while loading the video.');
+        });
+
+        // Optional: Handle DASH.js manifest loading
+        dash.on(dashjs.MediaPlayer.events.MANIFEST_LOADED, function() {
+            console.log('Manifest loaded successfully');
         });
     </script>
 </body>
