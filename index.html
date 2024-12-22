@@ -4,24 +4,71 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TG- @cric_stream</title>
+    //m3u8 and mpd both
     <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <script src="https://cdn.dashjs.org/latest/dash.all.min.js"></script>
     <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
     <style>
+        /* Responsive video container */
         .video-container {
             width: 95%;
             height: auto;
             max-width: 100%;
             margin: 0 auto;
+            position: relative;
         }
 
         video:fullscreen {
             width: 100%;
             height: 100%;
-            object-fit: contain;
+            object-fit: contain; /* Maintain aspect ratio */
         }
 
+        /* Buffering animation */
+        .buffering {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .buffering span {
+            margin: 0 5px;
+            animation: blink 1.5s infinite;
+        }
+
+        .buffering span:nth-child(2) {
+            animation-delay: 0.3s;
+        }
+
+        .buffering span:nth-child(3) {
+            animation-delay: 0.6s;
+        }
+
+        @keyframes blink {
+            0%, 100% {
+                opacity: 0.3;
+            }
+            50% {
+                opacity: 1;
+            }
+        }
+
+        .buffering.active {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Styles for the join button */
         #joinTelegramButton {
             background-color: #fff;
             color: #0074d9;
@@ -35,6 +82,7 @@
             color: #fff;
         }
 
+        /* Ensure video is properly centered on mobile devices */
         @media (max-width: 768px) {
             .video-container {
                 width: 100%;
@@ -45,6 +93,11 @@
 <body>
    <center>
     <div class="video-container">
+        <div class="buffering" id="buffering-animation">
+            <span>.</span>
+            <span>.</span>
+            <span>.</span>
+        </div>
         <video preload="none" id="video" autoplay controls crossorigin></video>
     </div>
     </center>
@@ -52,14 +105,24 @@
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             const urlParams = new URLSearchParams(window.location.search);
-            const videoUrl = urlParams.get('video');
+            const videoUrl = urlParams.get('video'); // Get the video URL from query params
 
             if (!videoUrl) {
                 document.body.innerHTML = "<h2>Video URL missing in query parameter</h2>";
-                return;
+                return; // Exit if no URL is provided
             }
 
             const video = document.getElementById('video');
+            const bufferingAnimation = document.getElementById('buffering-animation');
+
+            const showBuffering = () => {
+                bufferingAnimation.classList.add('active');
+            };
+
+            const hideBuffering = () => {
+                bufferingAnimation.classList.remove('active');
+            };
+
             const defaultOptions = {
                 controls: [
                     'play-large',
@@ -78,7 +141,6 @@
             };
 
             if (videoUrl.endsWith('.m3u8')) {
-                // HLS Stream
                 if (Hls.isSupported()) {
                     const hls = new Hls();
                     hls.loadSource(videoUrl);
@@ -96,6 +158,11 @@
 
                         const player = new Plyr(video, defaultOptions);
                     });
+
+                    hls.on(Hls.Events.ERROR, (event, data) => {
+                        console.error('HLS.js Error:', data);
+                        alert('An error occurred while loading the HLS stream.');
+                    });
                 } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
                     video.src = videoUrl;
                     const player = new Plyr(video, defaultOptions);
@@ -103,27 +170,12 @@
                     document.body.innerHTML = "<h2>HLS not supported on your browser</h2>";
                 }
             } else if (videoUrl.endsWith('.mpd')) {
-                // DASH Stream with DRM (Widevine or PlayReady)
                 const dash = dashjs.MediaPlayer().create();
-                
-                // Set protection data for DRM (Widevine example)
-                const protectionData = {
-                    'com.widevine.alpha': {
-                        serverURL: 'https://widevine-proxy.appspot.com/proxy' // Replace with your license server URL
-                    }
-                };
-                
-                // Add protection data to the DASH player
-                dash.setProtectionData(protectionData);
+                dash.initialize(video, videoUrl, true);
 
-                // Initialize DASH player
-                dash.initialize(video, videoUrl, true); // 'true' enables auto quality switching
-
-                // Add quality options once the manifest is loaded
                 dash.on(dashjs.MediaPlayer.events.MANIFEST_LOADED, function () {
                     const availableQualities = dash.getBitrateInfoListFor('video').map(info => info.height);
 
-                    // Add quality options dynamically
                     defaultOptions.quality = {
                         default: 0,
                         options: availableQualities,
@@ -141,12 +193,25 @@
             } else {
                 document.body.innerHTML = "<h2>Unsupported video format</h2>";
             }
+
+            video.addEventListener('waiting', showBuffering);
+            video.addEventListener('playing', hideBuffering);
+            video.addEventListener('canplay', hideBuffering);
+            video.addEventListener('canplaythrough', hideBuffering);
+
+            // Adjust video behavior on fullscreen
+            video.addEventListener('fullscreenchange', () => {
+                if (document.fullscreenElement) {
+                    video.style.objectFit = 'contain';
+                } else {
+                    video.style.objectFit = 'cover';
+                }
+            });
         });
 
-        // Function to update quality for HLS streams
         function updateQuality(hls, newQuality) {
             if (newQuality === 0) {
-                hls.currentLevel = -1; // Auto quality
+                hls.currentLevel = -1;
             } else {
                 hls.levels.forEach((level, index) => {
                     if (level.height === newQuality) {
@@ -156,10 +221,9 @@
             }
         }
 
-        // Function to update quality for DASH streams
         function updateDashQuality(dash, newQuality) {
             if (newQuality === 0) {
-                dash.setQualityFor('video', -1); // Auto quality
+                dash.setQualityFor('video', -1);
             } else {
                 dash.setQualityFor('video', newQuality);
             }
@@ -168,17 +232,9 @@
         if (confirm("Join Our Telegram Channel @cric_stream For More Links")) {
             window.location.href = "https://t.me/cric_stream";
         }
-
-        document.getElementById('video').addEventListener('fullscreenchange', () => {
-            const video = document.getElementById('video');
-            if (document.fullscreenElement) {
-                video.style.objectFit = 'contain';
-            } else {
-                video.style.objectFit = 'cover';
-            }
-        });
     </script>
 
+    <!-- Powered by Supercounters -->
     <center>
         <script type="text/javascript" src="//widget.supercounters.com/ssl/online_t.js"></script>
         <script type="text/javascript">sc_online_t(1703448, "Watching....", "#1d1d21");</script>
@@ -195,7 +251,7 @@
         <br>
         <br>
         <script async="async" data-cfasync="false" src="//carryglanced.com/2346ffc02acfb9eb4451708a5df9f609/invoke.js"></script>
-<div id="container-2346ffc02acfb9eb4451708a5df9f609"></div>
+        <div id="container-2346ffc02acfb9eb4451708a5df9f609"></div>
     </div>
 </body>
 </html>
