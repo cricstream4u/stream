@@ -18,12 +18,6 @@
             margin: 0 auto;
         }
 
-        video:fullscreen {
-            width: 100%;
-            height: 100%;
-            object-fit: contain; /* Maintain aspect ratio */
-        }
-
         /* Buffering animation */
         .buffering {
             position: absolute;
@@ -196,16 +190,6 @@
             video.addEventListener('playing', hideBuffering);
             video.addEventListener('canplay', hideBuffering);
             video.addEventListener('canplaythrough', hideBuffering);
-
-            // Adjust video behavior on fullscreen
-            video.addEventListener('fullscreenchange', () => {
-                if (document.fullscreenElement) {
-                    video.style.objectFit = 'contain';
-                } else {
-                    video.style.objectFit = 'cover';
-                }
-            });
-        });
 
         function updateQuality(hls, newQuality) {
             if (newQuality === 0) {
