@@ -195,14 +195,7 @@
             video.addEventListener('canplaythrough', hideBuffering);
 
             // Adjust video behavior on fullscreen
-            video.addEventListener('fullscreenchange', () => {
-                if (document.fullscreenElement) {
-                    video.style.objectFit = 'contain';
-                } else {
-                    video.style.objectFit = 'cover';
-                }
-            });
-        });
+         
 
         function updateQuality(hls, newQuality) {
             if (newQuality === 0) {
