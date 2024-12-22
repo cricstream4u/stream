@@ -3,72 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TG- @cric_stream</title>
-    <!--- m3u8 and mpd both --->
+    <title>HLS and DASH Player with Plyr</title>
     <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <script src="https://cdn.dashjs.org/latest/dash.all.min.js"></script>
     <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
     <style>
-        /* Responsive video container */
         .video-container {
             width: 95%;
             height: auto;
-            max-width: 100%;
-            margin: 0 auto;
-            position: relative;
         }
 
-        video:fullscreen {
-            width: 100%;
-            height: 100%;
-            object-fit: contain; /* Maintain aspect ratio */
-        }
-
-        /* Buffering animation */
-        .buffering {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            color: white;
-            visibility: hidden;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .buffering span {
-            margin: 0 5px;
-            animation: blink 1.5s infinite;
-        }
-
-        .buffering span:nth-child(2) {
-            animation-delay: 0.3s;
-        }
-
-        .buffering span:nth-child(3) {
-            animation-delay: 0.6s;
-        }
-
-        @keyframes blink {
-            0%, 100% {
-                opacity: 0.3;
-            }
-            50% {
-                opacity: 1;
+        @media (max-width: 768px) {
+            .video-container {
+                width: 100%;
             }
         }
 
-        .buffering.active {
-            visibility: visible;
-            opacity: 1;
-        }
-
-        /* Styles for the join button */
         #joinTelegramButton {
             background-color: #fff;
             color: #0074d9;
@@ -81,24 +32,12 @@
             background-color: #0074d9;
             color: #fff;
         }
-
-        /* Ensure video is properly centered on mobile devices */
-        @media (max-width: 768px) {
-            .video-container {
-                width: 100%;
-            }
-        }
     </style>
 </head>
 <body>
    <center>
     <div class="video-container">
-        <div class="buffering" id="buffering-animation">
-            <span>.</span>
-            <span>.</span>
-            <span>.</span>
-        </div>
-        <video preload="none" id="video" autoplay controls crossorigin poster="CRIC stream Thumbnail .jpg"></video>
+        <video preload="none" id="video" autoplay controls crossorigin poster=""></video>
     </div>
     </center>
 
@@ -113,16 +52,6 @@
             }
 
             const video = document.getElementById('video');
-            const bufferingAnimation = document.getElementById('buffering-animation');
-
-            const showBuffering = () => {
-                bufferingAnimation.classList.add('active');
-            };
-
-            const hideBuffering = () => {
-                bufferingAnimation.classList.remove('active');
-            };
-
             const defaultOptions = {
                 controls: [
                     'play-large',
@@ -131,6 +60,7 @@
                     'duration',
                     'live',
                     'mute',
+                    'volume',
                     'settings',
                     'pip',
                     'airplay',
@@ -140,14 +70,16 @@
             };
 
             if (videoUrl.endsWith('.m3u8')) {
+                // If the URL is an HLS stream
                 if (Hls.isSupported()) {
                     const hls = new Hls();
-                    hls.loadSource(videoUrl);
+                    hls.loadSource(videoUrl);  // Load HLS stream URL
                     hls.attachMedia(video);
 
                     hls.on(Hls.Events.MANIFEST_PARSED, () => {
                         const availableQualities = hls.levels.map(level => level.height);
 
+                        // Add quality options to the Plyr player
                         defaultOptions.quality = {
                             default: 0,
                             options: availableQualities,
@@ -163,18 +95,20 @@
                         alert('An error occurred while loading the HLS stream.');
                     });
                 } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                    // Safari and other browsers that support HLS natively
                     video.src = videoUrl;
                     const player = new Plyr(video, defaultOptions);
                 } else {
                     document.body.innerHTML = "<h2>HLS not supported on your browser</h2>";
                 }
             } else if (videoUrl.endsWith('.mpd')) {
+                // If the URL is a DASH stream
                 const dash = dashjs.MediaPlayer().create();
-                dash.initialize(video, videoUrl, true);
+                dash.initialize(video, videoUrl, true); // 'true' enables auto quality switching
 
+                // Add the player controls and quality settings
                 dash.on(dashjs.MediaPlayer.events.MANIFEST_LOADED, function () {
                     const availableQualities = dash.getBitrateInfoListFor('video').map(info => info.height);
-
                     defaultOptions.quality = {
                         default: 0,
                         options: availableQualities,
@@ -192,25 +126,12 @@
             } else {
                 document.body.innerHTML = "<h2>Unsupported video format</h2>";
             }
-
-            video.addEventListener('waiting', showBuffering);
-            video.addEventListener('playing', hideBuffering);
-            video.addEventListener('canplay', hideBuffering);
-            video.addEventListener('canplaythrough', hideBuffering);
-
-            // Adjust video behavior on fullscreen
-            video.addEventListener('fullscreenchange', () => {
-                if (document.fullscreenElement) {
-                    video.style.objectFit = 'contain';
-                } else {
-                    video.style.objectFit = 'cover';
-                }
-            });
         });
 
+        // Function to update quality for HLS streams
         function updateQuality(hls, newQuality) {
             if (newQuality === 0) {
-                hls.currentLevel = -1;
+                hls.currentLevel = -1; // Auto quality
             } else {
                 hls.levels.forEach((level, index) => {
                     if (level.height === newQuality) {
@@ -220,9 +141,10 @@
             }
         }
 
+        // Function to update quality for DASH streams
         function updateDashQuality(dash, newQuality) {
             if (newQuality === 0) {
-                dash.setQualityFor('video', -1);
+                dash.setQualityFor('video', -1); // Auto quality
             } else {
                 dash.setQualityFor('video', newQuality);
             }
@@ -240,6 +162,7 @@
         <br>
         <noscript><a href="https://www.supercounters.com/"></a></noscript>
     </center>
+    <!-- END: Powered by Supercounters -->
 
     <div style="background-color: #0074d9; text-align: center; padding: 10px;">
         <a href="https://telegram.me/cric_stream" target="_blank">
