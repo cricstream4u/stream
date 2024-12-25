@@ -43,117 +43,122 @@
     </center>
 
     <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const videoUrl = urlParams.get('video'); // Get the video URL from query params
+    document.addEventListener("DOMContentLoaded", () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const videoUrl = urlParams.get('video'); // Get the video URL from query params
 
-            if (!videoUrl) {
-                document.body.innerHTML = "<h2>Video URL missing in query parameter</h2>";
-                return; // Exit if no URL is provided
-            }
+        if (!videoUrl) {
+            document.body.innerHTML = "<h2>Video URL missing in query parameter</h2>";
+            return; // Exit if no URL is provided
+        }
 
-            const video = document.getElementById('video');
-            const defaultOptions = {
-                controls: [
-                    'play-large',
-                    'play',
-                    'progress',
-                    'duration',
-                    'live',
-                    'mute',
-                    'settings',
-                    'pip',
-                    'airplay',
-                    'fullscreen',
-                ],
-                settings: ['quality'],
-            };
+        const video = document.getElementById('video');
+        const defaultOptions = {
+            controls: [
+                'play-large',
+                'play',
+                'progress',
+                'duration',
+                'live',
+                'mute',
+                'settings',
+                'pip',
+                'airplay',
+                'fullscreen',
+            ],
+            settings: ['quality'],
+        };
 
-            if (videoUrl.endsWith('.m3u8')) {
-                // If the URL is an HLS stream
-                if (Hls.isSupported()) {
-                    const hls = new Hls();
-                    hls.loadSource(videoUrl);  // Load HLS stream URL
-                    hls.attachMedia(video);
+        if (videoUrl.endsWith('.m3u8')) {
+            // If the URL is an HLS stream
+            if (Hls.isSupported()) {
+                const hls = new Hls();
+                hls.loadSource(videoUrl);  // Load HLS stream URL
+                hls.attachMedia(video);
 
-                    hls.on(Hls.Events.MANIFEST_PARSED, () => {
-                        const availableQualities = hls.levels.map(level => level.height);
+                hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                    const availableQualities = hls.levels.map(level => level.height);
 
-                        // Add quality options to the Plyr player
-                        defaultOptions.quality = {
-                            default: 0,
-                            options: availableQualities,
-                            forced: true,
-                            onChange: (newQuality) => updateQuality(hls, newQuality),
-                        };
-
-                        const player = new Plyr(video, defaultOptions);
-                    });
-
-                    hls.on(Hls.Events.ERROR, (event, data) => {
-                        console.error('HLS.js Error:', data);
-                        alert('An error occurred while loading the HLS stream.');
-                    });
-                } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                    // Safari and other browsers that support HLS natively
-                    video.src = videoUrl;
-                    const player = new Plyr(video, defaultOptions);
-                } else {
-                    document.body.innerHTML = "<h2>HLS not supported on your browser</h2>";
-                }
-            } else if (videoUrl.endsWith('.mpd')) {
-                // If the URL is a DASH stream
-                const dash = dashjs.MediaPlayer().create();
-                dash.initialize(video, videoUrl, true); // 'true' enables auto quality switching
-
-                // Add the player controls and quality settings
-                dash.on(dashjs.MediaPlayer.events.MANIFEST_LOADED, function () {
-                    const availableQualities = dash.getBitrateInfoListFor('video').map(info => info.height);
+                    // Add quality options to the Plyr player
                     defaultOptions.quality = {
                         default: 0,
                         options: availableQualities,
                         forced: true,
-                        onChange: (newQuality) => updateDashQuality(dash, newQuality),
+                        onChange: (newQuality) => updateQuality(hls, newQuality),
                     };
 
                     const player = new Plyr(video, defaultOptions);
                 });
 
-                dash.on(dashjs.MediaPlayer.events.ERROR, function (e) {
-                    console.error('DASH.js Error:', e);
-                    alert('An error occurred while loading the DASH stream.');
+                hls.on(Hls.Events.ERROR, (event, data) => {
+                    console.error('HLS.js Error:', data);
+                    // No alert, just silently log the error
+                    // Optionally, display a custom message on the page
+                    document.body.innerHTML = "<h2>There was an issue loading the stream. Please try again later.</h2>";
                 });
+            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                // Safari and other browsers that support HLS natively
+                video.src = videoUrl;
+                const player = new Plyr(video, defaultOptions);
             } else {
-                document.body.innerHTML = "<h2>Unsupported video format</h2>";
+                document.body.innerHTML = "<h2>HLS not supported on your browser</h2>";
             }
-        });
+        } else if (videoUrl.endsWith('.mpd')) {
+            // If the URL is a DASH stream
+            const dash = dashjs.MediaPlayer().create();
+            dash.initialize(video, videoUrl, true); // 'true' enables auto quality switching
 
-        // Function to update quality for HLS streams
-        function updateQuality(hls, newQuality) {
-            if (newQuality === 0) {
-                hls.currentLevel = -1; // Auto quality
-            } else {
-                hls.levels.forEach((level, index) => {
-                    if (level.height === newQuality) {
-                        hls.currentLevel = index;
-                    }
-                });
-            }
-        }
+            // Add the player controls and quality settings
+            dash.on(dashjs.MediaPlayer.events.MANIFEST_LOADED, function () {
+                const availableQualities = dash.getBitrateInfoListFor('video').map(info => info.height);
+                defaultOptions.quality = {
+                    default: 0,
+                    options: availableQualities,
+                    forced: true,
+                    onChange: (newQuality) => updateDashQuality(dash, newQuality),
+                };
 
-        // Function to update quality for DASH streams
-        function updateDashQuality(dash, newQuality) {
-            if (newQuality === 0) {
-                dash.setQualityFor('video', -1); // Auto quality
-            } else {
-                dash.setQualityFor('video', newQuality);
-            }
-        }
+                const player = new Plyr(video, defaultOptions);
+            });
 
-        if (confirm("Join Our Telegram Channel @cric_stream For More Links")) {
-            window.location.href = "https://t.me/cric_stream";
+            dash.on(dashjs.MediaPlayer.events.ERROR, function (e) {
+                console.error('DASH.js Error:', e);
+                // No alert, just silently log the error
+                // Optionally, display a custom message on the page
+                document.body.innerHTML = "<h2>There was an issue loading the stream. Please try again later.</h2>";
+            });
+        } else {
+            document.body.innerHTML = "<h2>Unsupported video format</h2>";
         }
-    </script>
+    });
+
+    // Function to update quality for HLS streams
+    function updateQuality(hls, newQuality) {
+        if (newQuality === 0) {
+            hls.currentLevel = -1; // Auto quality
+        } else {
+            hls.levels.forEach((level, index) => {
+                if (level.height === newQuality) {
+                    hls.currentLevel = index;
+                }
+            });
+        }
+    }
+
+    // Function to update quality for DASH streams
+    function updateDashQuality(dash, newQuality) {
+        if (newQuality === 0) {
+            dash.setQualityFor('video', -1); // Auto quality
+        } else {
+            dash.setQualityFor('video', newQuality);
+        }
+    }
+
+    if (confirm("Join Our Telegram Channel @cric_stream For More Links")) {
+        window.location.href = "https://t.me/cric_stream";
+    }
+</script>
+
 
     <!-- Powered by Supercounters -->
     <center>
