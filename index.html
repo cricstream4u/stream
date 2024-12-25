@@ -4,21 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TG- @cric_stream</title>
-    <!--- HLS and DASH Player with Plyr--->
+    <!-- HLS and DASH Player with Plyr -->
     <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <script src="https://cdn.dashjs.org/latest/dash.all.min.js"></script>
     <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
     <style>
+        /* No width and height set for video container to allow default sizing by Plyr */
         .video-container {
-            width: 95%;
+            width: 100%;
             height: auto;
-        }
-
-        @media (max-width: 768px) {
-            .video-container {
-                width: 100%;
-            }
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto;
         }
 
         #joinTelegramButton {
@@ -171,8 +170,6 @@
         window.location.href = "https://t.me/cric_stream";
     }
 </script>
-
-
 
     <!-- Powered by Supercounters -->
     <center>
