@@ -57,7 +57,10 @@
                 const urlParams = new URLSearchParams(window.location.search);
                 const videoUrl = urlParams.get('video');
 
-                if (!videoUrl) return; // Do nothing if video URL is missing
+                if (!videoUrl) {
+                    console.warn("Video URL is missing in the query parameter.");
+                    return;
+                }
 
                 const video = document.getElementById('video');
                 const defaultOptions = {
@@ -101,6 +104,8 @@
                     } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
                         video.src = videoUrl;
                         const player = new Plyr(video, defaultOptions);
+                    } else {
+                        console.warn("HLS not supported in this browser.");
                     }
                 } else if (videoUrl.endsWith('.mpd')) {
                     const dash = dashjs.MediaPlayer().create();
@@ -122,6 +127,8 @@
                     dash.on(dashjs.MediaPlayer.events.ERROR, (e) => {
                         console.error('DASH.js Error:', e);
                     });
+                } else {
+                    console.warn("Unsupported video format.");
                 }
             });
 
