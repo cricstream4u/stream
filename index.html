@@ -58,7 +58,7 @@
                 const videoUrl = urlParams.get('video');
 
                 if (!videoUrl) {
-                    console.warn("Video URL is missing in the query parameter.");
+                    document.body.innerHTML = "<h2>Video URL missing in query parameter</h2>";
                     return;
                 }
 
@@ -79,6 +79,10 @@
                     settings: ['quality'],
                 };
 
+                const errorMessageTimeout = setTimeout(() => {
+                    document.body.innerHTML = "<h2>There was an issue loading the stream. Please try again later.</h2>";
+                }, 120000);
+
                 if (videoUrl.endsWith('.m3u8')) {
                     if (Hls.isSupported()) {
                         const hls = new Hls();
@@ -96,6 +100,7 @@
                             };
 
                             const player = new Plyr(video, defaultOptions);
+                            clearTimeout(errorMessageTimeout);
                         });
 
                         hls.on(Hls.Events.ERROR, (event, data) => {
@@ -104,8 +109,9 @@
                     } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
                         video.src = videoUrl;
                         const player = new Plyr(video, defaultOptions);
+                        video.onplaying = () => clearTimeout(errorMessageTimeout);
                     } else {
-                        console.warn("HLS not supported in this browser.");
+                        document.body.innerHTML = "<h2>HLS not supported on your browser</h2>";
                     }
                 } else if (videoUrl.endsWith('.mpd')) {
                     const dash = dashjs.MediaPlayer().create();
@@ -122,13 +128,14 @@
                         };
 
                         const player = new Plyr(video, defaultOptions);
+                        clearTimeout(errorMessageTimeout);
                     });
 
                     dash.on(dashjs.MediaPlayer.events.ERROR, (e) => {
                         console.error('DASH.js Error:', e);
                     });
                 } else {
-                    console.warn("Unsupported video format.");
+                    document.body.innerHTML = "<h2>Unsupported video format</h2>";
                 }
             });
 
@@ -151,6 +158,8 @@
                     dash.setQualityFor('video', newQuality);
                 }
             }
+
+           
         </script>
 
         <center>
@@ -166,5 +175,6 @@
             </a>
         </div>
     </div>
+    
 </body>
 </html>
