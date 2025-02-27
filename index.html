@@ -88,9 +88,9 @@
     <div class="video-container">
         <video preload="none" id="video" autoplay controls crossorigin poster="CRIC stream Thumbnail .jpg"></video>
   
-     <div id="live-label">
-        <center><a href="https://t.me/+ESR7kTRkAHI1NTI1">CRIC <br> STREAM</a></center>
-     </div>
+        <div id="live-label">
+           <center><a href="https://t.me/+ESR7kTRkAHI1NTI1">CRIC <br> STREAM</a></center>
+        </div>
         
     </div>
 
@@ -121,6 +121,10 @@
                     ],
                     settings: ['quality'],
                 };
+
+                // Show "Live" label when the stream is live
+                const liveLabel = document.getElementById('live-label');
+                liveLabel.style.display = 'block';
 
                 const errorMessageTimeout = setTimeout(() => {
                     document.body.innerHTML = "<h2>There was an issue loading the stream. Please try again later.</h2>";
