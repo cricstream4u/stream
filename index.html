@@ -44,11 +44,54 @@
             background-color: #0074d9;
             color: #fff;
         }
+
+         #live-label {
+        position: absolute;
+        top: 5px;
+        left: 5px;
+        font-size: 10px; /* Default font size for larger screens */
+        color: white;
+        background-color: rgba(0, 0, 0, 0.4);
+        padding: 4px 8px;
+        border-radius: 5px;
+        display: none;
+        z-index: 10;
+      }
+
+      #live-label a {
+        color: white;
+        text-decoration: none;
+        font-weight: bold;
+      }
+
+      /* For screens larger than 768px (laptops, desktops) */
+      @media (min-width: 768px) {
+        #live-label {
+          font-size: 8px;
+          padding: 5px 10px;
+        }
+      }
+
+      /* For smaller screens (mobiles) */
+      @media (max-width: 767px) {
+        #live-label {
+          font-size: 5px;
+          padding: 2px 4px;
+          top: 3px;
+          left: 3px;
+        }
+      }
+        
     </style>
 </head>
 <body>
     <div class="video-container">
         <video preload="none" id="video" autoplay controls crossorigin poster="CRIC stream Thumbnail .jpg"></video>
+  
+     <div id="live-label">
+        <center><a href="https://t.me/+ESR7kTRkAHI1NTI1">CRIC <br> STREAM</a></center>
+     </div>
+        
     </div>
 
     <div class="content">
