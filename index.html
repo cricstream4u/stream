@@ -126,6 +126,18 @@
                 const liveLabel = document.getElementById('live-label');
                 liveLabel.style.display = 'block';
 
+                // Detect when controls are visible and show/hide the live label
+                const controlPanel = document.querySelector('.shaka-controls');
+        
+                controlPanel.addEventListener('mouseenter', () => {
+                liveLabel.style.display = 'block';  // Show the "Live" label when controls are visible
+                });
+
+                controlPanel.addEventListener('mouseleave', () => {
+                liveLabel.style.display = 'none';  // Hide the "Live" label when controls are hidden
+                });
+                
+
                 const errorMessageTimeout = setTimeout(() => {
                     document.body.innerHTML = "<h2>There was an issue loading the stream. Please try again later.</h2>";
                 }, 120000);
