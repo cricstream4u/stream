@@ -21,8 +21,8 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
-            color: #fff;
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb, #90caf9);
+            color: #1565c0;
             min-height: 100vh;
             padding: 15px;
             display: flex;
@@ -40,31 +40,31 @@
 
         .header {
             text-align: center;
-            padding: 20px;
-            background: rgba(255, 255, 255, 0.15);
+            padding: 25px;
+            background: rgba(255, 255, 255, 0.9);
             border-radius: 20px;
-            backdrop-filter: blur(15px);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(33, 150, 243, 0.3);
+            box-shadow: 0 10px 30px rgba(33, 150, 243, 0.2);
         }
 
         .site-title {
             font-size: 42px;
             font-weight: 900;
             margin-bottom: 8px;
-            background: linear-gradient(90deg, #ff8a00, #e52e71, #9d50bb);
+            background: linear-gradient(90deg, #0288d1, #03a9f4, #4fc3f7);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            text-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            text-shadow: 0 4px 15px rgba(2, 136, 209, 0.2);
             letter-spacing: 1px;
         }
 
         .site-subtitle {
             font-size: 18px;
             font-weight: 500;
-            color: #ffeb3b;
-            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            color: #0277bd;
+            text-shadow: 0 2px 8px rgba(2, 119, 189, 0.1);
         }
 
         .video-section {
@@ -79,9 +79,9 @@
             background: #000;
             border-radius: 20px;
             overflow: hidden;
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
             position: relative;
-            border: 3px solid rgba(255, 255, 255, 0.2);
+            border: 3px solid rgba(255, 255, 255, 0.8);
         }
 
         #video {
@@ -96,16 +96,16 @@
             left: 20px;
             font-size: 14px;
             color: white;
-            background: linear-gradient(135deg, #ff3333, #cc0000, #ff6666);
+            background: linear-gradient(135deg, #0288d1, #03a9f4, #4fc3f7);
             padding: 8px 16px;
             border-radius: 25px;
             display: flex;
             align-items: center;
             gap: 8px;
             z-index: 10;
-            box-shadow: 0 6px 20px rgba(255, 0, 0, 0.4);
+            box-shadow: 0 6px 20px rgba(2, 136, 209, 0.4);
             font-weight: 700;
-            border: 2px solid rgba(255, 255, 255, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.8);
         }
 
         #live-label a {
@@ -133,12 +133,11 @@
         }
 
         .content {
-            background: rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.95);
             border-radius: 20px;
             padding: 25px;
-            backdrop-filter: blur(15px);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+            border: 2px solid rgba(33, 150, 243, 0.3);
+            box-shadow: 0 15px 35px rgba(33, 150, 243, 0.2);
         }
 
         .telegram-section {
@@ -153,24 +152,27 @@
             font-size: 24px;
             font-weight: 700;
             margin-bottom: 8px;
-            background: linear-gradient(90deg, #00c9ff, #92fe9d);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            color: #0277bd;
+            text-shadow: 0 2px 10px rgba(2, 119, 189, 0.1);
         }
 
         .telegram-desc {
             font-size: 16px;
             font-weight: 500;
-            color: #e3f2fd;
+            color: #0288d1;
             margin-bottom: 15px;
-            text-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .feature-desc {
+            font-size: 14px;
+            color: #039be5;
+            margin-bottom: 15px;
+            font-style: italic;
         }
 
         #joinTelegramButton {
-            background: linear-gradient(135deg, #ff6b6b, #ffa726, #ffeb3b);
-            color: #1a237e;
+            background: linear-gradient(135deg, #0288d1, #03a9f4);
+            color: white;
             border: none;
             padding: 15px 30px;
             border-radius: 30px;
@@ -178,17 +180,19 @@
             font-size: 18px;
             cursor: pointer;
             transition: all 0.4s ease;
-            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.5);
+            box-shadow: 0 8px 25px rgba(2, 136, 209, 0.4);
             display: flex;
             align-items: center;
             gap: 10px;
-            border: 2px solid rgba(255, 255, 255, 0.4);
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            text-decoration: none;
         }
 
         #joinTelegramButton:hover {
             transform: translateY(-5px) scale(1.05);
-            box-shadow: 0 12px 30px rgba(255, 107, 107, 0.7);
-            background: linear-gradient(135deg, #ff5252, #ff9800, #ffc107);
+            box-shadow: 0 12px 30px rgba(2, 136, 209, 0.6);
+            background: linear-gradient(135deg, #0277bd, #0288d1);
+            text-decoration: none;
         }
 
         #joinTelegramButton:active {
@@ -213,13 +217,14 @@
             color: white;
             text-decoration: none;
             transition: all 0.4s ease;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
-            border: 2px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 6px 20px rgba(33, 150, 243, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.8);
         }
 
         .social-icon:hover {
             transform: translateY(-5px) scale(1.1);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+            box-shadow: 0 10px 25px rgba(33, 150, 243, 0.5);
+            text-decoration: none;
         }
 
         .whatsapp {
@@ -244,33 +249,37 @@
             margin-top: 25px;
             font-size: 16px;
             font-weight: 500;
-            color: #ffeb3b;
-            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-            background: rgba(255, 255, 255, 0.1);
+            color: #0277bd;
+            background: rgba(255, 255, 255, 0.9);
             border-radius: 15px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(33, 150, 243, 0.3);
+            box-shadow: 0 8px 25px rgba(33, 150, 243, 0.2);
         }
 
-        /* Additional colorful elements */
+        /* Additional elements */
         .feature-section {
-            background: linear-gradient(135deg, rgba(156, 39, 176, 0.3), rgba(103, 58, 183, 0.3));
+            background: linear-gradient(135deg, rgba(2, 136, 209, 0.1), rgba(3, 169, 244, 0.1));
             padding: 20px;
             border-radius: 15px;
             margin-top: 15px;
             text-align: center;
+            border: 1px solid rgba(33, 150, 243, 0.2);
         }
 
         .feature-title {
             font-size: 20px;
             font-weight: 700;
-            color: #ffeb3b;
+            color: #0277bd;
             margin-bottom: 10px;
         }
 
-        .feature-desc {
-            font-size: 14px;
-            color: #e3f2fd;
+        /* Remove underline from all links */
+        a {
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: none;
         }
 
         /* Responsive adjustments */
@@ -291,7 +300,7 @@
 
         @media (max-width: 767px) {
             .header {
-                padding: 15px;
+                padding: 20px;
             }
             
             .site-title {
@@ -354,7 +363,7 @@
             }
         }
 
-        /* Plyr customizations with colorful theme */
+        /* Plyr customizations with white and sky theme */
         .plyr {
             border-radius: 20px;
         }
@@ -364,11 +373,11 @@
         }
 
         .plyr__control--overlaid {
-            background: linear-gradient(135deg, #ff6b6b, #ffa726) !important;
+            background: linear-gradient(135deg, #0288d1, #03a9f4) !important;
         }
 
         .plyr__control:hover {
-            background: linear-gradient(135deg, #ff5252, #ff9800) !important;
+            background: linear-gradient(135deg, #0277bd, #0288d1) !important;
         }
 
         .plyr--video .plyr__controls {
@@ -398,9 +407,9 @@
                 <div class="telegram-section">
                     <div class="telegram-title">Follow us for Updates!</div>
                     <div class="telegram-desc">Join Telegram For More Links</div>
-                    <div class="feature-desc" style="margin-bottom: 15px;">Copy Link & Open in Chrome Browser Only</div>
+                    <div class="feature-desc">Copy Link & Open in Chrome Browser Only</div>
                     
-                    <a href="https://t.me/cine_arena" target="_blank">
+                    <a href="https://t.me/cine_arena" target="_blank" style="text-decoration: none;">
                         <button id="joinTelegramButton">
                             <i class="fab fa-telegram"></i>
                             Join Telegram
@@ -448,7 +457,7 @@
                         </div>
                         <div class="content" style="text-align: center;">
                             <p>Please check the stream link and try again.</p>
-                            <a href="https://t.me/cine_arena" target="_blank" style="color: #ffeb3b; text-decoration: none; font-weight: bold;">
+                            <a href="https://t.me/cine_arena" target="_blank" style="color: #0288d1; text-decoration: none; font-weight: bold;">
                                 Visit our Telegram for working links
                             </a>
                         </div>
@@ -489,7 +498,7 @@
                         </div>
                         <div class="content" style="text-align: center;">
                             <p>There was an issue loading the stream. Please try again later.</p>
-                            <a href="https://t.me/cine_arena" target="_blank">
+                            <a href="https://t.me/cine_arena" target="_blank" style="text-decoration: none;">
                                 <button id="joinTelegramButton">
                                     <i class="fab fa-telegram"></i>
                                     Get Working Links on Telegram
