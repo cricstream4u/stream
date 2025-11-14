@@ -167,11 +167,13 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            text-decoration: none; /* Remove underline */
         }
 
         #joinTelegramButton:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(51, 204, 255, 0.4);
+            text-decoration: none; /* Remove underline on hover */
         }
 
         #joinTelegramButton:active {
@@ -226,6 +228,15 @@
             margin-top: 20px;
             font-size: 14px;
             opacity: 0.8;
+        }
+
+        /* Remove underline from all links */
+        a {
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: none;
         }
 
         /* Responsive adjustments */
@@ -335,7 +346,7 @@
                 <div class="telegram-section">
                     <div class="telegram-title">Join Our Community</div>
                     <div class="telegram-desc">Get instant updates, exclusive content, and more streaming links</div>
-                    <a href="https://t.me/cine_arena" target="_blank">
+                    <a href="https://t.me/cine_arena" target="_blank" style="text-decoration: none;">
                         <button id="joinTelegramButton">
                             <i class="fab fa-telegram"></i>
                             Join Telegram
@@ -421,7 +432,7 @@
                         </div>
                         <div class="content" style="text-align: center;">
                             <p>There was an issue loading the stream. Please try again later.</p>
-                            <a href="https://t.me/cine_arena" target="_blank">
+                            <a href="https://t.me/cine_arena" target="_blank" style="text-decoration: none;">
                                 <button id="joinTelegramButton">
                                     <i class="fab fa-telegram"></i>
                                     Get Working Links on Telegram
