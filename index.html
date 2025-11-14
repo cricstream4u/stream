@@ -10,234 +10,553 @@
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <script src="https://cdn.dashjs.org/latest/dash.all.min.js"></script>
     <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body {
+        * {
             margin: 0;
-            padding: 5px;
-            font-family: Arial, sans-serif;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a3d62, #1e5799);
+            color: #fff;
+            min-height: 100vh;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .header {
+            text-align: center;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .site-title {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 5px;
+            background: linear-gradient(90deg, #33ccff, #b3e0ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .site-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .video-section {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
 
         .video-container {
             width: 100%;
-            background-color: white;
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+            position: relative;
         }
 
-        video {
+        #video {
             width: 100%;
             height: auto;
-        }
-
-        .content {
-            padding: 0;
-            background-color: white;
-        }
-
-        #joinTelegramButton {
-            background-color: #fff;
-            color: #0074d9;
-            border: 2px solid #0074d9;
-            padding: 0;
-            cursor: pointer;
-        }
-
-        #joinTelegramButton:hover {
-            background-color: #0074d9;
-            color: #fff;
+            display: block;
         }
 
         #live-label {
             position: absolute;
-            top: 10px;
-            left: 10px;
-            font-size: 10px; /* Default font size for larger screens */
+            top: 15px;
+            left: 15px;
+            font-size: 12px;
             color: white;
-            background-color: rgba(0, 0, 0, 0.4);
-            padding: 4px 8px;
-            border-radius: 5px;
-            display: none;
+            background: linear-gradient(135deg, #ff3333, #cc0000);
+            padding: 6px 12px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
             z-index: 10;
-       }
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            font-weight: 600;
+        }
 
-       #live-label a {
+        #live-label a {
             color: white;
             text-decoration: none;
-            font-weight: bold;
-       }
-
-      /* For screens larger than 768px (laptops, desktops) */
-      @media (min-width: 768px) {
-        #live-label {
-          font-size: 8px;
-          padding: 5px 10px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
-      }
 
-      /* For smaller screens (mobiles) */
-      @media (max-width: 767px) {
-        #live-label {
-          font-size: 5px;
-          padding: 2px 4px;
-          top: 7px;
-          left: 7px;
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
         }
-      }
 
-      .sticky-footer {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            background: #fff;
-            color: white;
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .content {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .telegram-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
             text-align: center;
-            padding: 0px;
-      }
-        
+        }
+
+        .telegram-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .telegram-desc {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+
+        #joinTelegramButton {
+            background: linear-gradient(135deg, #33ccff, #0099cc);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(51, 204, 255, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        #joinTelegramButton:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(51, 204, 255, 0.4);
+        }
+
+        #joinTelegramButton:active {
+            transform: translateY(0);
+        }
+
+        .social-section {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .social-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            font-size: 20px;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .social-icon:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        .whatsapp {
+            background: #25D366;
+        }
+
+        .telegram {
+            background: #0088cc;
+        }
+
+        .facebook {
+            background: #3b5998;
+        }
+
+        .instagram {
+            background: #E1306C;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        /* Responsive adjustments */
+        @media (min-width: 768px) {
+            .video-section {
+                flex-direction: row;
+            }
+            
+            .video-container {
+                flex: 3;
+            }
+            
+            .content {
+                flex: 1;
+                max-width: 300px;
+            }
+        }
+
+        @media (max-width: 767px) {
+            .header {
+                padding: 10px;
+            }
+            
+            .site-title {
+                font-size: 22px;
+            }
+            
+            .site-subtitle {
+                font-size: 12px;
+            }
+            
+            #live-label {
+                font-size: 10px;
+                padding: 4px 8px;
+                top: 10px;
+                left: 10px;
+            }
+            
+            .content {
+                padding: 15px;
+            }
+            
+            .telegram-title {
+                font-size: 18px;
+            }
+            
+            #joinTelegramButton {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+            
+            .social-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 18px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            .site-title {
+                font-size: 20px;
+            }
+            
+            #live-label {
+                font-size: 9px;
+                padding: 3px 6px;
+            }
+            
+            .content {
+                padding: 12px;
+            }
+        }
+
+        /* Plyr customizations */
+        .plyr {
+            border-radius: 12px;
+        }
+
+        .plyr--fullscreen-active .plyr__video-wrapper {
+            border-radius: 0;
+        }
     </style>
 </head>
 <body>
-    <div class="video-container">
-        <video preload="none" id="video" autoplay controls crossorigin poster="CRIC stream Thumbnail .jpg"></video>
-  
-        <div id="live-label">
-           <center><a href="https://t.me/cine_arena">CINE <br>ARENA</a></center>
+    <div class="container">
+        <div class="header">
+            <div class="site-title">Cine Arena</div>
+            <div class="site-subtitle">Live Cricket Streaming</div>
         </div>
-        
+
+        <div class="video-section">
+            <div class="video-container">
+                <video preload="none" id="video" autoplay controls crossorigin poster="CRIC stream Thumbnail .jpg"></video>
+                <div id="live-label">
+                    <a href="https://t.me/cine_arena">
+                        <span class="live-dot"></span>
+                        CINE ARENA
+                    </a>
+                </div>
+            </div>
+
+            <div class="content">
+                <div class="telegram-section">
+                    <div class="telegram-title">Join Our Community</div>
+                    <div class="telegram-desc">Get instant updates, exclusive content, and more streaming links</div>
+                    <a href="https://t.me/cine_arena" target="_blank">
+                        <button id="joinTelegramButton">
+                            <i class="fab fa-telegram"></i>
+                            Join Telegram
+                        </button>
+                    </a>
+                    
+                    <div class="social-section">
+                        <a href="#" class="social-icon whatsapp" title="Share on WhatsApp">
+                            <i class="fab fa-whatsapp"></i>
+                        </a>
+                        <a href="#" class="social-icon telegram" title="Share on Telegram">
+                            <i class="fab fa-telegram"></i>
+                        </a>
+                        <a href="#" class="social-icon facebook" title="Share on Facebook">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="social-icon instagram" title="Share on Instagram">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Thank you for watching with Cine Arena</p>
+            <p>© 2023 Cine Arena. All rights reserved.</p>
+        </div>
     </div>
 
-    <div class="content">
-        <script>
-            document.addEventListener("DOMContentLoaded", () => {
-                const urlParams = new URLSearchParams(window.location.search);
-                const videoUrl = urlParams.get('video');
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const videoUrl = urlParams.get('video');
 
-                if (!videoUrl) {
-                    document.body.innerHTML = "<h2>Video URL missing in query parameter</h2>";
-                    return;
-                }
+            if (!videoUrl) {
+                document.body.innerHTML = `
+                    <div class="container">
+                        <div class="header">
+                            <div class="site-title">Cine Arena</div>
+                            <div class="site-subtitle">Video URL missing in query parameter</div>
+                        </div>
+                        <div class="content" style="text-align: center;">
+                            <p>Please check the stream link and try again.</p>
+                            <a href="https://t.me/cine_arena" target="_blank" style="color: #33ccff; text-decoration: none;">
+                                Visit our Telegram for working links
+                            </a>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
 
-                const video = document.getElementById('video');
-                const defaultOptions = {
-                    controls: [
-                        'play-large',
-                        'play',
-                        'progress',
-                        'duration',
-                        'live',
-                        'mute',
-                        'settings',
-                        'pip',
-                        'airplay',
-                        'fullscreen',
-                    ],
-                    settings: ['quality'],
-                };
+            const video = document.getElementById('video');
+            const defaultOptions = {
+                controls: [
+                    'play-large',
+                    'play',
+                    'progress',
+                    'current-time',
+                    'duration',
+                    'mute',
+                    'volume',
+                    'settings',
+                    'pip',
+                    'airplay',
+                    'fullscreen',
+                ],
+                settings: ['quality', 'speed'],
+                ratio: '16:9'
+            };
 
-                // Show "Live" label when the stream is live
-                const liveLabel = document.getElementById('live-label');
-                liveLabel.style.display = 'block';
+            // Show "Live" label when the stream is live
+            const liveLabel = document.getElementById('live-label');
+            liveLabel.style.display = 'flex';
 
-                
+            const errorMessageTimeout = setTimeout(() => {
+                document.body.innerHTML = `
+                    <div class="container">
+                        <div class="header">
+                            <div class="site-title">Cine Arena</div>
+                            <div class="site-subtitle">Stream Loading Issue</div>
+                        </div>
+                        <div class="content" style="text-align: center;">
+                            <p>There was an issue loading the stream. Please try again later.</p>
+                            <a href="https://t.me/cine_arena" target="_blank">
+                                <button id="joinTelegramButton">
+                                    <i class="fab fa-telegram"></i>
+                                    Get Working Links on Telegram
+                                </button>
+                            </a>
+                        </div>
+                    </div>
+                `;
+            }, 120000);
 
-                const errorMessageTimeout = setTimeout(() => {
-                    document.body.innerHTML = "<h2>There was an issue loading the stream. Please try again later.</h2>";
-                }, 120000);
+            if (videoUrl.endsWith('.m3u8')) {
+                if (Hls.isSupported()) {
+                    const hls = new Hls();
+                    hls.loadSource(videoUrl);
+                    hls.attachMedia(video);
 
-                if (videoUrl.endsWith('.m3u8')) {
-                    if (Hls.isSupported()) {
-                        const hls = new Hls();
-                        hls.loadSource(videoUrl);
-                        hls.attachMedia(video);
-
-                        hls.on(Hls.Events.MANIFEST_PARSED, () => {
-                            const availableQualities = hls.levels.map(level => level.height);
-
-                            defaultOptions.quality = {
-                                default: 0,
-                                options: availableQualities,
-                                forced: true,
-                                onChange: (newQuality) => updateQuality(hls, newQuality),
-                            };
-
-                            const player = new Plyr(video, defaultOptions);
-                            clearTimeout(errorMessageTimeout);
-                        });
-
-                        hls.on(Hls.Events.ERROR, (event, data) => {
-                            console.error('HLS.js Error:', data);
-                        });
-                    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-                        video.src = videoUrl;
-                        const player = new Plyr(video, defaultOptions);
-                        video.onplaying = () => clearTimeout(errorMessageTimeout);
-                    } else {
-                        document.body.innerHTML = "<h2>HLS not supported on your browser</h2>";
-                    }
-                } else if (videoUrl.endsWith('.mpd')) {
-                    const dash = dashjs.MediaPlayer().create();
-                    dash.initialize(video, videoUrl, true);
-
-                    dash.on(dashjs.MediaPlayer.events.MANIFEST_LOADED, () => {
-                        const availableQualities = dash.getBitrateInfoListFor('video').map(info => info.height);
+                    hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                        const availableQualities = hls.levels.map(level => level.height);
 
                         defaultOptions.quality = {
                             default: 0,
                             options: availableQualities,
                             forced: true,
-                            onChange: (newQuality) => updateDashQuality(dash, newQuality),
+                            onChange: (newQuality) => updateQuality(hls, newQuality),
                         };
 
                         const player = new Plyr(video, defaultOptions);
                         clearTimeout(errorMessageTimeout);
                     });
 
-                    dash.on(dashjs.MediaPlayer.events.ERROR, (e) => {
-                        console.error('DASH.js Error:', e);
+                    hls.on(Hls.Events.ERROR, (event, data) => {
+                        console.error('HLS.js Error:', data);
                     });
+                } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                    video.src = videoUrl;
+                    const player = new Plyr(video, defaultOptions);
+                    video.onplaying = () => clearTimeout(errorMessageTimeout);
                 } else {
-                    document.body.innerHTML = "<h2>Unsupported video format</h2>";
+                    document.body.innerHTML = `
+                        <div class="container">
+                            <div class="header">
+                                <div class="site-title">Cine Arena</div>
+                                <div class="site-subtitle">Browser Compatibility Issue</div>
+                            </div>
+                            <div class="content" style="text-align: center;">
+                                <p>HLS not supported on your browser. Please try Chrome or Firefox.</p>
+                            </div>
+                        </div>
+                    `;
                 }
-            });
+            } else if (videoUrl.endsWith('.mpd')) {
+                const dash = dashjs.MediaPlayer().create();
+                dash.initialize(video, videoUrl, true);
 
-            function updateQuality(hls, newQuality) {
-                if (newQuality === 0) {
-                    hls.currentLevel = -1;
-                } else {
-                    hls.levels.forEach((level, index) => {
-                        if (level.height === newQuality) {
-                            hls.currentLevel = index;
-                        }
-                    });
-                }
+                dash.on(dashjs.MediaPlayer.events.MANIFEST_LOADED, () => {
+                    const availableQualities = dash.getBitrateInfoListFor('video').map(info => info.height);
+
+                    defaultOptions.quality = {
+                        default: 0,
+                        options: availableQualities,
+                        forced: true,
+                        onChange: (newQuality) => updateDashQuality(dash, newQuality),
+                    };
+
+                    const player = new Plyr(video, defaultOptions);
+                    clearTimeout(errorMessageTimeout);
+                });
+
+                dash.on(dashjs.MediaPlayer.events.ERROR, (e) => {
+                    console.error('DASH.js Error:', e);
+                });
+            } else {
+                document.body.innerHTML = `
+                    <div class="container">
+                        <div class="header">
+                            <div class="site-title">Cine Arena</div>
+                            <div class="site-subtitle">Unsupported Format</div>
+                        </div>
+                        <div class="content" style="text-align: center;">
+                            <p>Unsupported video format. Please check the stream URL.</p>
+                        </div>
+                    </div>
+                `;
             }
+        });
 
-            function updateDashQuality(dash, newQuality) {
-                if (newQuality === 0) {
-                    dash.setQualityFor('video', -1);
-                } else {
-                    dash.setQualityFor('video', newQuality);
-                }
+        function updateQuality(hls, newQuality) {
+            if (newQuality === 0) {
+                hls.currentLevel = -1;
+            } else {
+                hls.levels.forEach((level, index) => {
+                    if (level.height === newQuality) {
+                        hls.currentLevel = index;
+                    }
+                });
             }
+        }
 
-           
-        </script>
+        function updateDashQuality(dash, newQuality) {
+            if (newQuality === 0) {
+                dash.setQualityFor('video', -1);
+            } else {
+                dash.setQualityFor('video', newQuality);
+            }
+        }
 
-       
+        // Social sharing functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentUrl = encodeURIComponent(window.location.href);
+            const shareText = encodeURIComponent("🚨 LIVE CRICKET STREAMING 🚨\n\nWatch Cine Arena live stream now!\n\n");
             
-        </center>
-        <div style="background-color: #0074d9; text-align: center; padding: 10px;">
-            <a href="https://t.me/cine_arena" target="_blank">
-                <button id="joinTelegramButton">Join Telegram</button>
-            </a>
-        </div>
-    </div>
-
-	
-    <br>
-    <br><br><br>
-    <br>
-    <br>
-
-  
-    
+            // WhatsApp
+            document.querySelector('.social-icon.whatsapp').addEventListener('click', function(e) {
+                e.preventDefault();
+                window.open(`https://api.whatsapp.com/send?text=${shareText}${currentUrl}`, '_blank');
+            });
+            
+            // Telegram
+            document.querySelector('.social-icon.telegram').addEventListener('click', function(e) {
+                e.preventDefault();
+                window.open(`https://t.me/share/url?url=${currentUrl}&text=${shareText}`, '_blank');
+            });
+            
+            // Facebook
+            document.querySelector('.social-icon.facebook').addEventListener('click', function(e) {
+                e.preventDefault();
+                window.open(`https://www.facebook.com/sharer/sharer.php?u=${currentUrl}&quote=${shareText}`, '_blank');
+            });
+            
+            // Instagram (can't share directly, so open in new tab)
+            document.querySelector('.social-icon.instagram').addEventListener('click', function(e) {
+                e.preventDefault();
+                window.open('https://www.instagram.com/', '_blank');
+            });
+        });
+    </script>
 </body>
 </html>
